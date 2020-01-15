@@ -229,8 +229,6 @@ static void hash_delete_addr(void *addr, size_t *size)
 
 static void hash_insert_extra_entry(fprof_size_hash_entry *head, void *addr, size_t size)
 {
-
-    fprof_size_hash_entry * next = NULL;
     fprof_size_hash_entry * entry = NULL;
 
     if(real_malloc == NULL)
@@ -254,16 +252,8 @@ static void hash_insert_extra_entry(fprof_size_hash_entry *head, void *addr, siz
     //insert
     //
 
-    next = head;
-
-    while(next) {
-        if(next->next == NULL) {
-            next->next = entry;
-            break;
-        }
-
-        next = next->next;
-    }
+    entry->next = head->next;
+    head->next  = entry;
 
 }
 
