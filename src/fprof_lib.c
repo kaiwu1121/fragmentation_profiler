@@ -830,9 +830,8 @@ void __attribute__((constructor)) libfprof_init(void)
 	FPROF_SET_REAL_FUNC(real_realloc, "realloc");
 	FPROF_SET_REAL_FUNC(real_free,    "free");
 
-    mfence();
 
-    parse_options();
+    //parse_options();
 
 	spin_lock(&fprof_init_lock);
 
