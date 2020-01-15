@@ -55,6 +55,9 @@ static spinlock_t   fprof_objects_size_lock = SPIN_UNLOCKED;
 static pthread_t    fprof_dump_thread;
 static int          fprof_dump_runflag = 0;
 
+static char         fprof_dump_buf[1024];
+
+
 static void* (*real_calloc)(size_t, size_t) = NULL;
 static void* (*real_malloc)(size_t) = NULL;
 static void* (*real_realloc)(void *, size_t) = NULL;
@@ -110,7 +113,6 @@ static void parse_options(void)
     }
 
 
-    return ;
 
     //
     // fprof_opt_max_size
@@ -121,7 +123,7 @@ static void parse_options(void)
         opt3 = "-1";
     }
 
-    fprof_opt_max_size = atoll(opt3);
+    fprof_opt_max_size = atol(opt3);
 
     if(fprof_opt_max_size == 0) {
         fprof_opt_max_size = -1;
@@ -131,6 +133,7 @@ static void parse_options(void)
     fprof_opt_max_size = fprof_opt_max_size << 20;
 
 
+    return ;
 
 
     //
@@ -724,7 +727,11 @@ nonvoluntary_ctxt_switches:	0
 
 	rss_ratio = (fprof_objects_size_bytes + 0.01) / (vmrss * 1024 + 0.01);
 
-	fprintf(	fprof_dump_fp, 
+
+
+
+	snprintf(	fprof_dump_buf, 
+                sizeof(fprof_dump_buf),
 				"time=%d,extra_hash_bytes=%lu,vmsize=%lu,vmrss=%lu,vmpte=%lu,objects=%lu,rss_ratio=%.3f\n", 
 				fprof_time_id,
                 hash_extra_bytes,
@@ -735,8 +742,11 @@ nonvoluntary_ctxt_switches:	0
 				rss_ratio
                 );
 
+
+    fprintf(fprof_dump_fp, fprof_dump_buf);
+
     if(fprof_opt_debug) {
-        printf("vmsize=%lu,vmrss=%lu,rss_ratio=%.3f\n", vmsize, vmrss, rss_ratio);
+        fprintf(stdout, fprof_dump_buf);
     }
 }
 
