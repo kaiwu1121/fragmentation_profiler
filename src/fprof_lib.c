@@ -757,7 +757,7 @@ static void *fprof_dump_thread_func(void *arg)
 	(void) gettimeofday(&tv1, NULL);
 	(void) gettimeofday(&tv2, NULL);
 
-    //parse_options();
+    parse_options();
 
 	while(fprof_dump_runflag == 1) {
 
