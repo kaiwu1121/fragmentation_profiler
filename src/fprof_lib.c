@@ -92,7 +92,6 @@ static void parse_options(void)
 
     fprof_opt_debug = atoi(opt1);
 
-    printf("FPROF: fprof_opt_debug=%d\n", fprof_opt_debug);
 
     //
     // fprof_opt_max_runs
@@ -109,7 +108,6 @@ static void parse_options(void)
         fprof_opt_max_runs = -1;
     }
 
-    printf("FPROF: fprof_opt_max_runs=%d\n", fprof_opt_max_runs);
 
 
     //
@@ -131,7 +129,6 @@ static void parse_options(void)
     fprof_opt_max_size = fprof_opt_max_size << 20;
 
 
-    printf("FPROF: fprof_opt_max_size=%lu MB\n", fprof_opt_max_size >> 20);
 
 
     //
@@ -146,7 +143,10 @@ static void parse_options(void)
     fprof_opt_dump_interval = atoll(opt4);
 
 
-    printf("FPROF: fprof_opt_dump_interval=%lu MB\n", fprof_opt_dump_interval);
+  //  printf("FPROF: fprof_opt_debug=%d\n", fprof_opt_debug);
+  //  printf("FPROF: fprof_opt_max_runs=%d\n", fprof_opt_max_runs);
+  //  printf("FPROF: fprof_opt_max_size=%lu MB\n", fprof_opt_max_size >> 20);
+  //  printf("FPROF: fprof_opt_dump_interval=%lu MB\n", fprof_opt_dump_interval);
 
 }
 
@@ -734,7 +734,7 @@ nonvoluntary_ctxt_switches:	0
                 );
 
     if(fprof_opt_debug) {
-     //   printf("vmsize=%lu,vmrss=%lu,rss_ratio=%.3f\n", vmsize, vmrss, rss_ratio);
+        printf("vmsize=%lu,vmrss=%lu,rss_ratio=%.3f\n", vmsize, vmrss, rss_ratio);
     }
 }
 
