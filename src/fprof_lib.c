@@ -71,6 +71,87 @@ static long fprof_time_id = 0;
 }while(0)
 
 
+
+static int      fprof_opt_debug = 0;
+static int      fprof_opt_max_runs = 0;
+static size_t   fprof_opt_max_size = -1;
+static int      fprof_opt_dump_interval = 1;
+
+
+static void parse_options(void)
+{
+ 
+    char *opt = NULL;
+
+    //
+    // fprof_opt_debug
+    //
+    opt = getenv("fprof_opt_debug");
+
+    if(opt == NULL) {
+        opt = "0";
+    }
+
+    fprof_opt_debug = atoi(opt);
+
+    printf("FPROF: fprof_opt_debug=%d\n", fprof_opt_debug);
+
+    //
+    // fprof_opt_max_runs
+    //
+    opt  = getenv("fprof_max_runs");
+
+    if(opt == NULL) {
+        opt = "-1";
+    }
+
+    fprof_opt_max_runs = atoi(opt);
+
+    if(fprof_opt_max_runs == 0) {
+        fprof_opt_max_runs = -1;
+    }
+
+    printf("FPROF: fprof_opt_max_runs=%d\n", fprof_opt_max_runs);
+
+
+    //
+    // fprof_opt_max_size
+    //
+    opt = getenv("fprof_opt_max_size");
+
+    if(opt == NULL) {
+        opt = "-1";
+    }
+
+    fprof_opt_max_size = atoll(opt);
+
+    if(fprof_opt_max_size == 0) {
+        fprof_opt_max_size = -1;
+    }
+
+    //MB to bytes
+    fprof_opt_max_size = fprof_opt_max_size << 20;
+
+
+    printf("FPROF: fprof_opt_max_size=%lu MB\n", fprof_opt_max_size >> 20);
+
+
+    //
+    // fprof_opt_dump_interval
+    //
+    opt = getenv("fprof_dump_interval");
+
+    if(opt == NULL) {
+        opt = "1";
+    }
+
+    fprof_opt_dump_interval = atoll(opt);
+
+
+    printf("FPROF: fprof_opt_dump_interval=%lu MB\n", fprof_opt_dump_interval);
+
+}
+
 static void hash_delete_extra_entry(fprof_size_hash_entry *head, void *addr, size_t *size)
 {
 
@@ -90,7 +171,9 @@ static void hash_delete_extra_entry(fprof_size_hash_entry *head, void *addr, siz
 
             fprof_size_hash_extra_bytes -= sizeof(*entry);
             
-            real_free(entry);
+            if(real_free) {
+                real_free(entry);
+            }
 
             break;
         }
@@ -154,7 +237,6 @@ static void hash_insert_extra_entry(fprof_size_hash_entry *head, void *addr, siz
     entry = real_malloc(sizeof(*entry));
 
     if(entry == NULL) {
-        printf("FPROF: failed real_malloc\n");
         return ;
     }
 
@@ -652,15 +734,7 @@ nonvoluntary_ctxt_switches:	0
 				rss_ratio
                 );
 
-    char *_fprof_debug = getenv("fprof_debug");
-
-    if(_fprof_debug == NULL) {
-        _fprof_debug = "0";
-    }
-
-    int fprof_debug = atoi(_fprof_debug);
-
-    if(fprof_debug) {
+    if(fprof_opt_debug) {
         printf("vmsize=%lu,vmrss=%lu,rss_ratio=%.3f\n", vmsize, vmrss, rss_ratio);
     }
 }
@@ -682,46 +756,6 @@ static void *fprof_dump_thread_func(void *arg)
 	(void) gettimeofday(&tv1, NULL);
 	(void) gettimeofday(&tv2, NULL);
 
-    char *_fprof_max_runs = getenv("fprof_max_runs");
-
-    if(_fprof_max_runs == NULL) {
-        _fprof_max_runs = "-1";
-    }
-
-    int fprof_max_runs = atoi(_fprof_max_runs);
-
-    if(fprof_max_runs == 0) {
-        fprof_max_runs = -1;
-    }
-
-    char *_fprof_max_size = getenv("fprof_max_size");
-
-    if(_fprof_max_size == NULL) {
-        _fprof_max_size = "-1";
-    }
-
-    size_t fprof_max_size = atoll(_fprof_max_size);
-
-    if(fprof_max_size == 0) {
-        fprof_max_size = -1;
-    }
-
-    //MB to bytes
-    fprof_max_size = fprof_max_size << 20;
-
-    char *_fprof_dump_interval = getenv("fprof_dump_interval");
-
-    if(_fprof_dump_interval == NULL) {
-        _fprof_dump_interval = "1";
-    }
-
-    int fprof_dump_interval = atoll(_fprof_dump_interval);
-
-
-    printf("FPROF: fprof_max_runs=%d\n", fprof_max_runs);
-    printf("FPROF: fprof_max_size=%lld\n", fprof_max_size);
-    printf("FPROF: fprof_dump_interval=%d\n", fprof_dump_interval);
-
 
 	while(fprof_dump_runflag == 1) {
 
@@ -731,13 +765,13 @@ static void *fprof_dump_thread_func(void *arg)
 
 		t2 = fprof_tv_diff_secs(&tv1, &tv2);
 
-		if(fprof_max_runs > 0 && n >  fprof_max_runs) {
+		if(fprof_opt_max_runs > 0 && n >  fprof_opt_max_runs) {
 			fclose(fprof_dump_fp);
             printf("FPROF: exited.\n");
 			exit(0);
 		}
 
-		if(t2 < fprof_dump_interval) {
+		if(t2 < fprof_opt_dump_interval) {
 			sleep(1);
 			continue;
 		}
@@ -757,11 +791,11 @@ static void *fprof_dump_thread_func(void *arg)
 
 		fprof_time_id++;
 
-		if(ret == 0 && (st.st_size >> 20) < fprof_max_size) {
+		if(ret == 0 && (st.st_size >> 20) < fprof_opt_max_size) {
 			continue;
 		} else {
 			fclose(fprof_dump_fp);
-            printf("FPROF: dump file size %lld MB exceeled the limit %lld MB\n", st.st_size >> 20, fprof_max_size >> 20);
+            printf("FPROF: dump file size %lld MB exceeled the limit %lld MB\n", st.st_size >> 20, fprof_opt_max_size >> 20);
 			exit(0);
 		}
 
@@ -779,6 +813,13 @@ void __attribute__((constructor)) libfprof_init(void)
 	
 	setbuf(stdout, NULL);
 	setbuf(stderr, NULL);
+	
+	FPROF_SET_REAL_FUNC(real_malloc,  "malloc");
+	FPROF_SET_REAL_FUNC(real_calloc,  "calloc");
+	FPROF_SET_REAL_FUNC(real_realloc, "realloc");
+	FPROF_SET_REAL_FUNC(real_free,    "free");
+
+    parse_options();
 
 	spin_lock(&fprof_init_lock);
 
@@ -790,13 +831,6 @@ void __attribute__((constructor)) libfprof_init(void)
     memset(fprof_size_hash, 0, sizeof(fprof_size_hash));
 
 	//get real funcs
-	
-	FPROF_SET_REAL_FUNC(real_malloc,  "malloc");
-	FPROF_SET_REAL_FUNC(real_calloc,  "calloc");
-	FPROF_SET_REAL_FUNC(real_realloc, "realloc");
-	FPROF_SET_REAL_FUNC(real_free,    "free");
-
-
 
 	(void) mkdir(FPROF_RESULT_DIR, 0755);
 
@@ -822,7 +856,8 @@ void __attribute__((constructor)) libfprof_init(void)
 
 	fprof_dump_runflag = 0;
 
-	mfence();
+	//mfence();
+
 
 	//create thread
 	ret = pthread_create(&fprof_dump_thread, NULL, fprof_dump_thread_func, NULL);
@@ -832,7 +867,7 @@ void __attribute__((constructor)) libfprof_init(void)
 		exit(-1);
 	}
 
-	mfence();
+	//mfence();
 
 	while(fprof_dump_runflag == 0) {
 		usleep(100 * 1000);
