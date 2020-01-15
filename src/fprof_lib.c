@@ -144,13 +144,13 @@ static void parse_options(void)
         opt4 = "1";
     }
 
-    fprof_opt_dump_interval = atol(opt4);
+    fprof_opt_dump_interval = ato(opt4);
 
 
     printf("FPROF: fprof_opt_debug=%d\n", fprof_opt_debug);
     printf("FPROF: fprof_opt_max_runs=%d\n", fprof_opt_max_runs);
     printf("FPROF: fprof_opt_max_size=%lu MB\n", fprof_opt_max_size >> 20);
-    printf("FPROF: fprof_opt_dump_interval=%lu MB\n", fprof_opt_dump_interval);
+    printf("FPROF: fprof_opt_dump_interval=%d\n", fprof_opt_dump_interval);
 
 }
 
