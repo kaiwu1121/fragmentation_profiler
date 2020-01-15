@@ -331,6 +331,7 @@ void* malloc(size_t size)
 	}
 
 	if(ptr == NULL) {
+        exit(-1);
 		return NULL;
 	}
 
