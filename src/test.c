@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "htrace_lib.h"
 
 
 #define TEST_NR	100
@@ -22,7 +21,6 @@ int main(int argc, char **argv)
 
 	for(i = 0; i < TEST_NR; i++) {
 		sizes[i] = rand() % 4096;
-		//ptrs[i]  = htrace_tmp_alloc(sizes[i]);
 		ptrs[i]  = malloc(sizes[i]);
 
 		printf("alloc ptr = %lx size = %ld\n", ptrs[i], sizes[i]);
@@ -34,7 +32,6 @@ int main(int argc, char **argv)
 	sleep(60);
 
 	for(i = 0; i < TEST_NR; i++) {
-		//htrace_tmp_free(ptrs[i]);
 		free(ptrs[i]);
 
 		printf("free ptr = %lx\n", ptrs[i]);

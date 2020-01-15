@@ -20,17 +20,30 @@
 #include "fprof_lib.h"
 
 
-#define FPROF_ADDR_HASH_SIZE    10000
+#define FPROF_ADDR_HASH_TABLE_SIZE      7999
+#define FPROF_ADDR_HASH_ENTRY_SIZE      17
 
-//struct rb_root fprof_lyt_root = RB_ROOT;
-//static size_t	fprof_lyt_pages = 0;
+#ifndef MAX_PATH_LEN
+#define MAX_PATH_LEN 1024
+#endif
+
+typedef struct fprof_size_hash_entry {
+    int     in_use;
+    void    *addr;
+    size_t  size;
+    struct  fprof_size_hash_entry *next;
+} fprof_size_hash_entry;
+
+static struct fprof_size_hash_entry fprof_size_hash[FPROF_ADDR_HASH_TABLE_SIZE][FPROF_ADDR_HASH_ENTRY_SIZE];
+static spinlock_t fprof_size_hash_lock = SPIN_UNLOCKED;
+
+static size_t fprof_size_hash_extra_bytes = 0;
+
 
 static FILE *fprof_dump_fp = NULL;
-static char fprof_dump_file[128];
+static char fprof_dump_file[MAX_PATH_LEN];
 
 static spinlock_t fprof_init_lock = SPIN_UNLOCKED;
-
-//static spinlock_t fprof_lyt_lock = SPIN_UNLOCKED;
 
 static int fprof_init_flag = 0;
 
@@ -49,94 +62,175 @@ static void (*real_free)(void*) = NULL;
 
 static long fprof_time_id = 0;
 
+#define FPROF_SET_REAL_FUNC(real_ptr, name) do {\
+	real_ptr = dlsym(RTLD_NEXT, name); \
+	if(real_ptr == NULL) {\
+		/*fprintf(stderr, "can't find symbol %s\n", name);*/\
+		exit(-1);\
+	}\
+}while(0)
 
-#if 1
-static int insert_record(struct rb_root *root, struct fprof_node *data)
+
+static void hash_delete_extra_entry(fprof_size_hash_entry *head, void *addr, size_t *size)
 {
-  	struct rb_node **new = &(root->rb_node), *parent = NULL;
 
-  	/* Figure out where to put new node */
-  	while (*new) {
-  		struct fprof_node *this = container_of(*new, struct fprof_node, node);
+    fprof_size_hash_entry * next = NULL;
+    fprof_size_hash_entry * entry = NULL;
 
-  		//int result = strcmp(data->string, this->string);
-  		long result = (unsigned long)data->ptr - (unsigned long)this->ptr;
+    *size = 0;
 
-		parent = *new;
+    next = head;
 
-  		if (result < 0)
-  			new = &((*new)->rb_left);
-  		else if (result > 0)
-  			new = &((*new)->rb_right);
-  		else
-  			return 0;
-  	}
+    while(next) {
+        if(next->next && next->next->addr == addr) {
+            entry = next->next;
+            next->next = entry->next;
 
-  	/* Add new node and rebalance tree. */
-  	rb_link_node(&data->node, parent, new);
-  	rb_insert_color(&data->node, root);
+            *size = entry->size;
 
-	return 1;
+            fprof_size_hash_extra_bytes -= sizeof(*entry);
+            
+            real_free(entry);
+
+            break;
+        }
+
+        next = next->next;
+    }
+
 }
 
-static struct fprof_node * find_record(struct rb_root *root, void *ptr)
+
+static void hash_delete_addr(void *addr, size_t *size)
 {
-  	struct rb_node *node = root->rb_node;
+    fprof_size_hash_entry *entry = NULL;
+    int i = 0;
+    int j = 0;
+    int found = 0;
 
-  	while (node) {
-  		struct fprof_node *data = container_of(node, struct fprof_node, node);
+    spin_lock(&fprof_size_hash_lock);
 
-		long result;
+    i = (unsigned long) addr % FPROF_ADDR_HASH_TABLE_SIZE;
 
-		//result = strcmp(string, data->string);
-		result = (unsigned long)ptr - (unsigned long)data->ptr;
+    for(j = 0; j < FPROF_ADDR_HASH_ENTRY_SIZE; j++) {
+        entry = &fprof_size_hash[i][j];
+        
+        if(entry->addr == addr) {
+            *size = entry->size;
 
-		if (result < 0)
-  			node = node->rb_left;
-		else if (result > 0)
-  			node = node->rb_right;
-		else
-  			return data;
-	}
+            entry->addr = NULL;
+            entry->size = 0;
 
-	return NULL;
+            found = 1;
+            break;
+        }  
+    }
+
+    //
+    // can't find in fast hash, we try the single-linked list
+    //
+    if(found == 0) {
+        j = (unsigned long) addr % FPROF_ADDR_HASH_ENTRY_SIZE;
+
+        entry = &fprof_size_hash[i][j];
+
+        hash_delete_extra_entry(entry, addr, size);
+
+    }
+
+
+    spin_unlock(&fprof_size_hash_lock);
+
 }
 
-static size_t delete_record(struct rb_root *root, void *ptr)
+
+static void hash_insert_extra_entry(fprof_size_hash_entry *head, void *addr, size_t size)
 {
-	struct fprof_node *node = find_record(root, ptr);
-	size_t size = 0;
 
-	if(node) {
-		size = node->size;
-		rb_erase(&node->node, root);
+    fprof_size_hash_entry * next = NULL;
+    fprof_size_hash_entry * entry = NULL;
 
-		fprof_tmp_free(node);
-	}
 
-	return size;
+    entry = real_malloc(sizeof(*entry));
+
+    if(entry == NULL) {
+        printf("FPROF: failed real_malloc\n");
+        return ;
+    }
+
+    fprof_size_hash_extra_bytes += sizeof(*entry);
+
+    memset(entry, 0, sizeof(*entry));
+
+    entry->addr = addr;
+    entry->size = size;
+    entry->next = NULL;
+
+    //
+    //insert
+    //
+
+    next = head;
+
+    while(next) {
+        if(next->next == NULL) {
+            next->next = entry;
+            break;
+        }
+
+        next = next->next;
+    }
+
 }
-#endif
+
+static void hash_insert_addr(void *addr, size_t size)
+{
+    fprof_size_hash_entry *entry = NULL;
+    int i = 0;
+    int j = 0;
+    int inserted = 0;
+
+    spin_lock(&fprof_size_hash_lock);
+
+    i = (unsigned long) addr % FPROF_ADDR_HASH_TABLE_SIZE;
+
+    for(j = 0; j < FPROF_ADDR_HASH_ENTRY_SIZE; j++) {
+        entry = &fprof_size_hash[i][j];
+        
+        if(entry->addr == NULL) {
+            entry->addr = addr;
+            entry->size = size;
+            inserted = 1;
+            break;
+        }  
+    }
+    
+    if(inserted == 0) {
+        //no slot, we need add extra storage space
+        
+        j = (unsigned long) addr % FPROF_ADDR_HASH_ENTRY_SIZE;
+
+        entry = &fprof_size_hash[i][j];
+
+        hash_insert_extra_entry(entry, addr, size);
+
+    }
+
+    spin_unlock(&fprof_size_hash_lock);
+}
 
 void free(void *ptr)
 {
 
-	//struct fprof_memory_header *hdr = (struct fprof_memory_header *) (ptr - sizeof(*hdr));
 	size_t size = 0;;
 
 	
-	//if(ptr) {
-	//	if(hdr->magic == HTRACE_TMP_MAGIC && hdr->ptr == ptr)
-	//		size = hdr->size;
-	//} 
-
 	if(real_free)
 		real_free(ptr);
 
-	spin_lock(&fprof_lyt_lock);
-	size = delete_record(&fprof_lyt_root, ptr);
-	fprof_lyt_pages--;
-	spin_unlock(&fprof_lyt_lock);
+
+
+    hash_delete_addr(ptr, &size);
 
 	spin_lock(&fprof_objects_size_lock);
 	fprof_objects_size_bytes -= size;
@@ -148,49 +242,16 @@ void* malloc(size_t size)
 	void *ptr = NULL;
 	int ret = 0;
 	
-	struct fprof_node *node = NULL; 
-
-	node = fprof_tmp_alloc(sizeof(*node));
-	
-	if(node == NULL) {
-		return NULL;
-	}
-#if 0
-	struct fprof_memory_header *hdr = NULL;
-	size_t _size = size + sizeof(*hdr);
-
-	if(real_malloc) {
-		hdr = real_malloc(_size);
-		
-		if(hdr == NULL)
-			return NULL;
-
-		ptr = hdr + sizeof(*hdr);
-
-		hdr->magic = HTRACE_TMP_MAGIC;
-		hdr->size = size;
-		hdr->ptr = ptr;
-
-	}
-#else
-	if(real_malloc) {
+    if(real_malloc) {
 		ptr = real_malloc(size);
 	}
-#endif
 
 	if(ptr == NULL) {
-		fprof_tmp_free(node);
 		return NULL;
 	}
 
-	node->ptr  = ptr;
-	node->size = size;
 
-	spin_lock(&fprof_lyt_lock);
-	insert_record(&fprof_lyt_root, node);
-	fprof_lyt_pages++;
-	spin_unlock(&fprof_lyt_lock);	
-
+    hash_insert_addr(ptr, size);
 
 	spin_lock(&fprof_objects_size_lock);
 	fprof_objects_size_bytes += size;
@@ -199,38 +260,16 @@ void* malloc(size_t size)
 	return ptr;
 }
 
-#if 0
 void* calloc(size_t count, size_t size)
 {
 	void *ptr = NULL;
-	struct fprof_memory_header *hdr = NULL;
-	size_t _size = size + sizeof(*hdr);
-
-	//struct fprof_node *node = fprof_tmp_alloc(sizeof(*node));
-	
-	//if(node == NULL) {
-	//	return NULL;
-	//}
-
-
-	//fprof_wait_init_done();
 
 	if(real_calloc) {
 		ptr = real_calloc(count, size);
 	}
 
-	if(ptr == NULL) {
-		fprof_tmp_free(node);
-		return NULL;
-	}
 
-
-	node->ptr = ptr;
-	node->size = count * size;
-
-	spin_lock(&fprof_lyt_lock);
-	insert_record(&fprof_lyt_root, node);
-	spin_unlock(&fprof_lyt_lock);
+    hash_insert_addr(ptr, size * count);
 
 	spin_lock(&fprof_objects_size_lock);
 	fprof_objects_size_bytes += count * size;
@@ -242,34 +281,17 @@ void* calloc(size_t count, size_t size)
 void *realloc(void *ptr, size_t size)
 {
 	void *new_ptr;
-	struct fprof_node *node = fprof_tmp_alloc(sizeof(*node));
 	size_t oldsize = 0;
-
-	if(node == NULL) {
-		return NULL;
-	}
 
 	if(real_realloc)
 		new_ptr = real_realloc(ptr, size);
 
 	if(new_ptr == NULL) {
-		fprof_tmp_free(node);
 		return NULL;
 	}
 
-
-	node->ptr = new_ptr;
-	node->size = size;
-
-	spin_lock(&fprof_lyt_lock);
-	
-	//delete old
-	oldsize = delete_record(&fprof_lyt_root, ptr);
-
-	//insert new
-	insert_record(&fprof_lyt_root, node);
-	
-	spin_unlock(&fprof_lyt_lock);
+    hash_delete_addr(ptr, &oldsize);
+    hash_insert_addr(new_ptr, size);
 
 	spin_lock(&fprof_objects_size_lock);
 	fprof_objects_size_bytes -= oldsize;
@@ -278,37 +300,6 @@ void *realloc(void *ptr, size_t size)
 
 	return new_ptr;
 }
-#endif
-
-static void libfprof_record_write(void *ptr, size_t sz)
-{
-	struct fprof_record record;
-
-
-	if(fprof_dump_fp == NULL)
-		return;
-
-	memset(&record, 0, sizeof(record));
-
-	//gettimeofday(&record.tv, NULL);
-
-	record.id	 = fprof_time_id;
-	//record.magic = HTRACE_RECORD_MAGIC;
-	record.ptr   = (unsigned long)ptr;
-	record.size  = sz;
-
-	fwrite(&record, sizeof(record), 1, fprof_dump_fp);
-}
-
-#define FPROF_SET_REAL_FUNC(real_ptr, name) do {\
-	real_ptr = dlsym(RTLD_NEXT, name); \
-	\
-	if(real_ptr == NULL) {\
-		/*fprintf(stderr, "can't find symbol %s\n", name);*/\
-		exit(-1);\
-	}\
-}while(0)
-
 
 static long fprof_tv_diff_secs(struct timeval *tv1, struct timeval *tv2)
 {
@@ -335,8 +326,6 @@ static long fprof_tv_diff_secs(struct timeval *tv1, struct timeval *tv2)
 
 
 #if 0
-#define HTRACE_PERF_PATH	"/usr/bin/perf"
-
 
 
 struct fprof_stats {
@@ -636,16 +625,16 @@ nonvoluntary_ctxt_switches:	0
 
 	double rss_ratio = 0;
 
-	size_t tmppages = 0;
 
 	//
-	//we must exclude the pages we allocated in our tmp_alloc function.
 	//
-	spin_lock(&fprof_lyt_lock);
-	tmppages = fprof_lyt_pages;
-	spin_unlock(&fprof_lyt_lock);
+    //
+    size_t hash_extra_bytes = 0;
 
-	vmrss -= tmppages * 4; //4K
+	spin_lock(&fprof_size_hash_lock);
+    hash_extra_bytes = fprof_size_hash_extra_bytes;
+	spin_unlock(&fprof_size_hash_lock);
+
 
 	if(vmrss < 0)
 		vmrss = fprof_objects_size_bytes / 1024;
@@ -653,8 +642,9 @@ nonvoluntary_ctxt_switches:	0
 	rss_ratio = (fprof_objects_size_bytes + 0.01) / (vmrss * 1024 + 0.01);
 
 	fprintf(	fprof_dump_fp, 
-				"time=%d,vmsize=%lu,vmrss=%lu,vmpte=%lu,objects=%lu,rss_ratio=%.3f\n", 
+				"time=%d,extra_hash_bytes=%lu,vmsize=%lu,vmrss=%lu,vmpte=%lu,objects=%lu,rss_ratio=%.3f\n", 
 				fprof_time_id,
+                hash_extra_bytes,
 				vmsize,
 				vmrss,
 				vmpte,
@@ -796,6 +786,8 @@ void __attribute__((constructor)) libfprof_init(void)
 		spin_unlock(&fprof_init_lock);
 		return;
 	}
+
+    memset(fprof_size_hash, 0, sizeof(fprof_size_hash));
 
 	//get real funcs
 	
