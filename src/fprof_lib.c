@@ -93,7 +93,6 @@ static void parse_options(void)
     fprof_opt_debug = atoi(opt1);
 
 
-    return ;
 
     //
     // fprof_opt_max_runs
@@ -111,6 +110,7 @@ static void parse_options(void)
     }
 
 
+    return ;
 
     //
     // fprof_opt_max_size
