@@ -133,7 +133,6 @@ static void parse_options(void)
     fprof_opt_max_size = fprof_opt_max_size << 20;
 
 
-    return ;
 
 
     //
@@ -145,7 +144,7 @@ static void parse_options(void)
         opt4 = "1";
     }
 
-    fprof_opt_dump_interval = atoll(opt4);
+    fprof_opt_dump_interval = atol(opt4);
 
 
     printf("FPROF: fprof_opt_debug=%d\n", fprof_opt_debug);
