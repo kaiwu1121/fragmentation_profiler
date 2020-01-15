@@ -233,6 +233,8 @@ static void hash_insert_extra_entry(fprof_size_hash_entry *head, void *addr, siz
     fprof_size_hash_entry * next = NULL;
     fprof_size_hash_entry * entry = NULL;
 
+    if(real_malloc == NULL)
+        return ;
 
     entry = real_malloc(sizeof(*entry));
 
@@ -306,8 +308,10 @@ void free(void *ptr)
 
 	size_t size = 0;;
 
-    while(real_free == NULL) {}
 	
+    if(real_free == NULL)
+        FPROF_SET_REAL_FUNC(real_free,  "free");
+
 	if(real_free)
 		real_free(ptr);
 
@@ -325,7 +329,9 @@ void* malloc(size_t size)
 	void *ptr = NULL;
 	int ret = 0;
 	
-    while(real_malloc == NULL) {}
+
+    if(real_malloc == NULL)
+        FPROF_SET_REAL_FUNC(real_malloc,  "malloc");
 
     if(real_malloc) {
 		ptr = real_malloc(size);
@@ -823,6 +829,8 @@ void __attribute__((constructor)) libfprof_init(void)
 	FPROF_SET_REAL_FUNC(real_calloc,  "calloc");
 	FPROF_SET_REAL_FUNC(real_realloc, "realloc");
 	FPROF_SET_REAL_FUNC(real_free,    "free");
+
+    mfence();
 
     parse_options();
 
