@@ -885,9 +885,9 @@ void __attribute__((destructor))  libfprof_exit(void)
 
 	fprof_dump_runflag = 1;
 
-	if(fprof_dump_fp >= 0) {
+	if(fprof_dump_fp) {
 		fclose(fprof_dump_fp);
-        fprof_dump_fp = -1;
+        fprof_dump_fp = NULL;
 	}
 }
 
