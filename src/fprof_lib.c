@@ -144,7 +144,7 @@ static void parse_options(void)
         opt4 = "1";
     }
 
-    fprof_opt_dump_interval = ato(opt4);
+    fprof_opt_dump_interval = atoi(opt4);
 
 
     printf("FPROF: fprof_opt_debug=%d\n", fprof_opt_debug);
