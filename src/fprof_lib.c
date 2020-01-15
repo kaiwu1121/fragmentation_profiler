@@ -725,7 +725,7 @@ nonvoluntary_ctxt_switches:	0
 	if(vmrss < 0)
 		vmrss = fprof_objects_size_bytes / 1024;
 
-	rss_ratio = (fprof_objects_size_bytes + 0.01) / (vmrss * 1024 + 0.01);
+	rss_ratio = ((double)fprof_objects_size_bytes + 0.01) / ((double)vmrss * 1024.00 + 0.01);
 
 
 
