@@ -81,31 +81,29 @@ static int      fprof_opt_dump_interval = 1;
 static void parse_options(void)
 {
  
-    char *opt = NULL;
-
     //
     // fprof_opt_debug
     //
-    opt = getenv("fprof_opt_debug");
+    char *opt1 = getenv("fprof_opt_debug");
 
-    if(opt == NULL) {
-        opt = "0";
+    if(opt1 == NULL) {
+        opt1 = "0";
     }
 
-    fprof_opt_debug = atoi(opt);
+    fprof_opt_debug = atoi(opt1);
 
     printf("FPROF: fprof_opt_debug=%d\n", fprof_opt_debug);
 
     //
     // fprof_opt_max_runs
     //
-    opt  = getenv("fprof_opt_max_runs");
+    char *opt2  = getenv("fprof_opt_max_runs");
 
-    if(opt == NULL) {
-        opt = "-1";
+    if(opt2 == NULL) {
+        opt2 = "-1";
     }
 
-    fprof_opt_max_runs = atoi(opt);
+    fprof_opt_max_runs = atoi(opt2);
 
     if(fprof_opt_max_runs == 0) {
         fprof_opt_max_runs = -1;
@@ -117,13 +115,13 @@ static void parse_options(void)
     //
     // fprof_opt_max_size
     //
-    opt = getenv("fprof_opt_max_size");
+    char *opt3 = getenv("fprof_opt_max_size");
 
-    if(opt == NULL) {
-        opt = "-1";
+    if(opt3 == NULL) {
+        opt3 = "-1";
     }
 
-    fprof_opt_max_size = atoll(opt);
+    fprof_opt_max_size = atoll(opt3);
 
     if(fprof_opt_max_size == 0) {
         fprof_opt_max_size = -1;
@@ -139,13 +137,13 @@ static void parse_options(void)
     //
     // fprof_opt_dump_interval
     //
-    opt = getenv("fprof_opt_dump_interval");
+    char *opt4 = getenv("fprof_opt_dump_interval");
 
-    if(opt == NULL) {
-        opt = "1";
+    if(opt4 == NULL) {
+        opt4 = "1";
     }
 
-    fprof_opt_dump_interval = atoll(opt);
+    fprof_opt_dump_interval = atoll(opt4);
 
 
     printf("FPROF: fprof_opt_dump_interval=%lu MB\n", fprof_opt_dump_interval);
