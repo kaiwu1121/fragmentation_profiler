@@ -1,0 +1,212 @@
+#           time             counts unit events
+     1.000188789                 52      page-faults              
+     1.000188789                  0      major-faults             
+     1.000188789                 52      minor-faults             
+     1.000188789               9156      L1-dcache-load-misses    
+     1.000188789             158191      L1-dcache-loads          
+     1.000188789              91175      L1-dcache-stores           (28.04%)
+     1.000188789      <not counted>      L1-icache-load-misses      (0.00%)
+     1.000188789      <not counted>      LLC-load-misses            (0.00%)
+     1.000188789      <not counted>      LLC-loads                  (0.00%)
+     1.000188789      <not counted>      LLC-store-misses           (0.00%)
+     1.000188789      <not counted>      LLC-stores                 (0.00%)
+     1.000188789      <not counted>      branch-load-misses         (0.00%)
+     1.000188789      <not counted>      branch-loads               (0.00%)
+     1.000188789      <not counted>      dTLB-load-misses           (0.00%)
+     1.000188789      <not counted>      dTLB-loads                 (0.00%)
+     1.000188789      <not counted>      dTLB-store-misses          (0.00%)
+     1.000188789      <not counted>      dTLB-stores                (0.00%)
+     1.000188789      <not counted>      iTLB-load-misses           (0.00%)
+     1.000188789      <not counted>      iTLB-loads                 (0.00%)
+     1.000188789      <not counted>      branch-instructions        (0.00%)
+     1.000188789      <not counted>      branch-misses              (0.00%)
+     1.000188789      <not counted>      cache-misses               (0.00%)
+     1.000188789    <not supported> Joules power/energy-cores/      
+     1.000188789    <not supported> Joules power/energy-pkg/        
+     1.000188789    <not supported> Joules power/energy-ram/        
+     1.000188789      <not counted>      L1-dcache-loads            (0.00%)
+     1.000188789      <not counted>      L1-dcache-load-misses      (0.00%)
+     1.000188789      <not counted>      LLC-loads                  (0.00%)
+     1.000188789      <not counted>      LLC-load-misses            (0.00%)
+     1.000188789    <not supported>      L1-icache-loads          
+     1.000188789      <not counted>      L1-icache-load-misses      (0.00%)
+     1.000188789      <not counted>      dTLB-loads                 (0.00%)
+     1.000188789      <not counted>      dTLB-load-misses           (0.00%)
+     1.000188789      <not counted>      iTLB-loads                 (0.00%)
+     1.000188789      <not counted>      iTLB-load-misses           (0.00%)
+     2.001082489      <not counted>      page-faults              
+     2.001082489      <not counted>      major-faults             
+     2.001082489      <not counted>      minor-faults             
+     2.001082489      <not counted>      L1-dcache-load-misses    
+     2.001082489      <not counted>      L1-dcache-loads          
+     2.001082489      <not counted>      L1-dcache-stores           (28.04%)
+     2.001082489      <not counted>      L1-icache-load-misses      (0.00%)
+     2.001082489      <not counted>      LLC-load-misses            (0.00%)
+     2.001082489      <not counted>      LLC-loads                  (0.00%)
+     2.001082489      <not counted>      LLC-store-misses           (0.00%)
+     2.001082489      <not counted>      LLC-stores                 (0.00%)
+     2.001082489      <not counted>      branch-load-misses         (0.00%)
+     2.001082489      <not counted>      branch-loads               (0.00%)
+     2.001082489      <not counted>      dTLB-load-misses           (0.00%)
+     2.001082489      <not counted>      dTLB-loads                 (0.00%)
+     2.001082489      <not counted>      dTLB-store-misses          (0.00%)
+     2.001082489      <not counted>      dTLB-stores                (0.00%)
+     2.001082489      <not counted>      iTLB-load-misses           (0.00%)
+     2.001082489      <not counted>      iTLB-loads                 (0.00%)
+     2.001082489      <not counted>      branch-instructions        (0.00%)
+     2.001082489      <not counted>      branch-misses              (0.00%)
+     2.001082489      <not counted>      cache-misses               (0.00%)
+     2.001082489    <not supported> Joules power/energy-cores/      
+     2.001082489    <not supported> Joules power/energy-pkg/        
+     2.001082489    <not supported> Joules power/energy-ram/        
+     2.001082489      <not counted>      L1-dcache-loads            (0.00%)
+     2.001082489      <not counted>      L1-dcache-load-misses      (0.00%)
+     2.001082489      <not counted>      LLC-loads                  (0.00%)
+     2.001082489      <not counted>      LLC-load-misses            (0.00%)
+     2.001082489    <not supported>      L1-icache-loads          
+     2.001082489      <not counted>      L1-icache-load-misses      (0.00%)
+     2.001082489      <not counted>      dTLB-loads                 (0.00%)
+     2.001082489      <not counted>      dTLB-load-misses           (0.00%)
+     2.001082489      <not counted>      iTLB-loads                 (0.00%)
+     2.001082489      <not counted>      iTLB-load-misses           (0.00%)
+     3.001800341      <not counted>      page-faults              
+     3.001800341      <not counted>      major-faults             
+     3.001800341      <not counted>      minor-faults             
+     3.001800341      <not counted>      L1-dcache-load-misses    
+     3.001800341      <not counted>      L1-dcache-loads          
+     3.001800341      <not counted>      L1-dcache-stores           (28.04%)
+     3.001800341      <not counted>      L1-icache-load-misses      (0.00%)
+     3.001800341      <not counted>      LLC-load-misses            (0.00%)
+     3.001800341      <not counted>      LLC-loads                  (0.00%)
+     3.001800341      <not counted>      LLC-store-misses           (0.00%)
+     3.001800341      <not counted>      LLC-stores                 (0.00%)
+     3.001800341      <not counted>      branch-load-misses         (0.00%)
+     3.001800341      <not counted>      branch-loads               (0.00%)
+     3.001800341      <not counted>      dTLB-load-misses           (0.00%)
+     3.001800341      <not counted>      dTLB-loads                 (0.00%)
+     3.001800341      <not counted>      dTLB-store-misses          (0.00%)
+     3.001800341      <not counted>      dTLB-stores                (0.00%)
+     3.001800341      <not counted>      iTLB-load-misses           (0.00%)
+     3.001800341      <not counted>      iTLB-loads                 (0.00%)
+     3.001800341      <not counted>      branch-instructions        (0.00%)
+     3.001800341      <not counted>      branch-misses              (0.00%)
+     3.001800341      <not counted>      cache-misses               (0.00%)
+     3.001800341    <not supported> Joules power/energy-cores/      
+     3.001800341    <not supported> Joules power/energy-pkg/        
+     3.001800341    <not supported> Joules power/energy-ram/        
+     3.001800341      <not counted>      L1-dcache-loads            (0.00%)
+     3.001800341      <not counted>      L1-dcache-load-misses      (0.00%)
+     3.001800341      <not counted>      LLC-loads                  (0.00%)
+     3.001800341      <not counted>      LLC-load-misses            (0.00%)
+     3.001800341    <not supported>      L1-icache-loads          
+     3.001800341      <not counted>      L1-icache-load-misses      (0.00%)
+     3.001800341      <not counted>      dTLB-loads                 (0.00%)
+     3.001800341      <not counted>      dTLB-load-misses           (0.00%)
+     3.001800341      <not counted>      iTLB-loads                 (0.00%)
+     3.001800341      <not counted>      iTLB-load-misses           (0.00%)
+     4.002520045      <not counted>      page-faults              
+     4.002520045      <not counted>      major-faults             
+     4.002520045      <not counted>      minor-faults             
+     4.002520045      <not counted>      L1-dcache-load-misses    
+     4.002520045      <not counted>      L1-dcache-loads          
+     4.002520045      <not counted>      L1-dcache-stores           (28.04%)
+     4.002520045      <not counted>      L1-icache-load-misses      (0.00%)
+     4.002520045      <not counted>      LLC-load-misses            (0.00%)
+     4.002520045      <not counted>      LLC-loads                  (0.00%)
+     4.002520045      <not counted>      LLC-store-misses           (0.00%)
+     4.002520045      <not counted>      LLC-stores                 (0.00%)
+     4.002520045      <not counted>      branch-load-misses         (0.00%)
+     4.002520045      <not counted>      branch-loads               (0.00%)
+     4.002520045      <not counted>      dTLB-load-misses           (0.00%)
+     4.002520045      <not counted>      dTLB-loads                 (0.00%)
+     4.002520045      <not counted>      dTLB-store-misses          (0.00%)
+     4.002520045      <not counted>      dTLB-stores                (0.00%)
+     4.002520045      <not counted>      iTLB-load-misses           (0.00%)
+     4.002520045      <not counted>      iTLB-loads                 (0.00%)
+     4.002520045      <not counted>      branch-instructions        (0.00%)
+     4.002520045      <not counted>      branch-misses              (0.00%)
+     4.002520045      <not counted>      cache-misses               (0.00%)
+     4.002520045    <not supported> Joules power/energy-cores/      
+     4.002520045    <not supported> Joules power/energy-pkg/        
+     4.002520045    <not supported> Joules power/energy-ram/        
+     4.002520045      <not counted>      L1-dcache-loads            (0.00%)
+     4.002520045      <not counted>      L1-dcache-load-misses      (0.00%)
+     4.002520045      <not counted>      LLC-loads                  (0.00%)
+     4.002520045      <not counted>      LLC-load-misses            (0.00%)
+     4.002520045    <not supported>      L1-icache-loads          
+     4.002520045      <not counted>      L1-icache-load-misses      (0.00%)
+     4.002520045      <not counted>      dTLB-loads                 (0.00%)
+     4.002520045      <not counted>      dTLB-load-misses           (0.00%)
+     4.002520045      <not counted>      iTLB-loads                 (0.00%)
+     4.002520045      <not counted>      iTLB-load-misses           (0.00%)
+     5.003286619      <not counted>      page-faults              
+     5.003286619      <not counted>      major-faults             
+     5.003286619      <not counted>      minor-faults             
+     5.003286619      <not counted>      L1-dcache-load-misses    
+     5.003286619      <not counted>      L1-dcache-loads          
+     5.003286619      <not counted>      L1-dcache-stores           (28.04%)
+     5.003286619      <not counted>      L1-icache-load-misses      (0.00%)
+     5.003286619      <not counted>      LLC-load-misses            (0.00%)
+     5.003286619      <not counted>      LLC-loads                  (0.00%)
+     5.003286619      <not counted>      LLC-store-misses           (0.00%)
+     5.003286619      <not counted>      LLC-stores                 (0.00%)
+     5.003286619      <not counted>      branch-load-misses         (0.00%)
+     5.003286619      <not counted>      branch-loads               (0.00%)
+     5.003286619      <not counted>      dTLB-load-misses           (0.00%)
+     5.003286619      <not counted>      dTLB-loads                 (0.00%)
+     5.003286619      <not counted>      dTLB-store-misses          (0.00%)
+     5.003286619      <not counted>      dTLB-stores                (0.00%)
+     5.003286619      <not counted>      iTLB-load-misses           (0.00%)
+     5.003286619      <not counted>      iTLB-loads                 (0.00%)
+     5.003286619      <not counted>      branch-instructions        (0.00%)
+     5.003286619      <not counted>      branch-misses              (0.00%)
+     5.003286619      <not counted>      cache-misses               (0.00%)
+     5.003286619    <not supported> Joules power/energy-cores/      
+     5.003286619    <not supported> Joules power/energy-pkg/        
+     5.003286619    <not supported> Joules power/energy-ram/        
+     5.003286619      <not counted>      L1-dcache-loads            (0.00%)
+     5.003286619      <not counted>      L1-dcache-load-misses      (0.00%)
+     5.003286619      <not counted>      LLC-loads                  (0.00%)
+     5.003286619      <not counted>      LLC-load-misses            (0.00%)
+     5.003286619    <not supported>      L1-icache-loads          
+     5.003286619      <not counted>      L1-icache-load-misses      (0.00%)
+     5.003286619      <not counted>      dTLB-loads                 (0.00%)
+     5.003286619      <not counted>      dTLB-load-misses           (0.00%)
+     5.003286619      <not counted>      iTLB-loads                 (0.00%)
+     5.003286619      <not counted>      iTLB-load-misses           (0.00%)
+     6.001493154                  1      page-faults              
+     6.001493154                  0      major-faults             
+     6.001493154                  1      minor-faults             
+     6.001493154      <not counted>      L1-dcache-load-misses    
+     6.001493154              39164      L1-dcache-loads          
+     6.001493154              18681      L1-dcache-stores           (38.07%)
+     6.001493154      <not counted>      L1-icache-load-misses      (0.00%)
+     6.001493154      <not counted>      LLC-load-misses            (0.00%)
+     6.001493154      <not counted>      LLC-loads                  (0.00%)
+     6.001493154      <not counted>      LLC-store-misses           (0.00%)
+     6.001493154      <not counted>      LLC-stores                 (0.00%)
+     6.001493154      <not counted>      branch-load-misses         (0.00%)
+     6.001493154      <not counted>      branch-loads               (0.00%)
+     6.001493154      <not counted>      dTLB-load-misses           (0.00%)
+     6.001493154      <not counted>      dTLB-loads                 (0.00%)
+     6.001493154      <not counted>      dTLB-store-misses          (0.00%)
+     6.001493154      <not counted>      dTLB-stores                (0.00%)
+     6.001493154      <not counted>      iTLB-load-misses           (0.00%)
+     6.001493154      <not counted>      iTLB-loads                 (0.00%)
+     6.001493154      <not counted>      branch-instructions        (0.00%)
+     6.001493154      <not counted>      branch-misses              (0.00%)
+     6.001493154      <not counted>      cache-misses               (0.00%)
+     6.001493154    <not supported> Joules power/energy-cores/      
+     6.001493154    <not supported> Joules power/energy-pkg/        
+     6.001493154    <not supported> Joules power/energy-ram/        
+     6.001493154      <not counted>      L1-dcache-loads            (0.00%)
+     6.001493154      <not counted>      L1-dcache-load-misses      (0.00%)
+     6.001493154      <not counted>      LLC-loads                  (0.00%)
+     6.001493154      <not counted>      LLC-load-misses            (0.00%)
+     6.001493154    <not supported>      L1-icache-loads          
+     6.001493154      <not counted>      L1-icache-load-misses      (0.00%)
+     6.001493154      <not counted>      dTLB-loads                 (0.00%)
+     6.001493154      <not counted>      dTLB-load-misses           (0.00%)
+     6.001493154      <not counted>      iTLB-loads                 (0.00%)
+     6.001493154      <not counted>      iTLB-load-misses           (0.00%)
+
