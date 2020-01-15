@@ -7,6 +7,7 @@
 
 #define _GNU_SOURCE
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -65,7 +66,6 @@ static long fprof_time_id = 0;
 #define FPROF_SET_REAL_FUNC(real_ptr, name) do {\
 	real_ptr = dlsym(RTLD_NEXT, name); \
 	if(real_ptr == NULL) {\
-		/*fprintf(stderr, "can't find symbol %s\n", name);*/\
 		exit(-1);\
 	}\
 }while(0)
@@ -92,6 +92,8 @@ static void parse_options(void)
 
     fprof_opt_debug = atoi(opt1);
 
+
+    return ;
 
     //
     // fprof_opt_max_runs
@@ -143,10 +145,10 @@ static void parse_options(void)
     fprof_opt_dump_interval = atoll(opt4);
 
 
-  //  printf("FPROF: fprof_opt_debug=%d\n", fprof_opt_debug);
-  //  printf("FPROF: fprof_opt_max_runs=%d\n", fprof_opt_max_runs);
-  //  printf("FPROF: fprof_opt_max_size=%lu MB\n", fprof_opt_max_size >> 20);
-  //  printf("FPROF: fprof_opt_dump_interval=%lu MB\n", fprof_opt_dump_interval);
+    printf("FPROF: fprof_opt_debug=%d\n", fprof_opt_debug);
+    printf("FPROF: fprof_opt_max_runs=%d\n", fprof_opt_max_runs);
+    printf("FPROF: fprof_opt_max_size=%lu MB\n", fprof_opt_max_size >> 20);
+    printf("FPROF: fprof_opt_dump_interval=%lu MB\n", fprof_opt_dump_interval);
 
 }
 
