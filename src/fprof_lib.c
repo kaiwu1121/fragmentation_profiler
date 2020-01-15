@@ -734,7 +734,7 @@ nonvoluntary_ctxt_switches:	0
                 );
 
     if(fprof_opt_debug) {
-        printf("vmsize=%lu,vmrss=%lu,rss_ratio=%.3f\n", vmsize, vmrss, rss_ratio);
+     //   printf("vmsize=%lu,vmrss=%lu,rss_ratio=%.3f\n", vmsize, vmrss, rss_ratio);
     }
 }
 
