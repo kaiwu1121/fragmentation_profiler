@@ -317,7 +317,7 @@ void free(void *ptr)
 
 
 
-   // hash_delete_addr(ptr, &size);
+    hash_delete_addr(ptr, &size);
 
 	spin_lock(&fprof_objects_size_lock);
 	fprof_objects_size_bytes -= size;
@@ -342,7 +342,7 @@ void* malloc(size_t size)
 	}
 
 
-    // hash_insert_addr(ptr, size);
+    hash_insert_addr(ptr, size);
 
 	spin_lock(&fprof_objects_size_lock);
 	fprof_objects_size_bytes += size;
