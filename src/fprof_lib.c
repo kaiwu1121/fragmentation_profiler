@@ -767,6 +767,7 @@ static void *fprof_dump_thread_func(void *arg)
 	(void) gettimeofday(&tv1, NULL);
 	(void) gettimeofday(&tv2, NULL);
 
+    parse_options();
 
 	while(fprof_dump_runflag == 1) {
 
@@ -831,7 +832,6 @@ void __attribute__((constructor)) libfprof_init(void)
 	FPROF_SET_REAL_FUNC(real_free,    "free");
 
 
-    //parse_options();
 
 	spin_lock(&fprof_init_lock);
 
