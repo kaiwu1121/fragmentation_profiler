@@ -306,6 +306,7 @@ void free(void *ptr)
 
 	size_t size = 0;;
 
+    while(real_free == NULL) {}
 	
 	if(real_free)
 		real_free(ptr);
@@ -324,6 +325,8 @@ void* malloc(size_t size)
 	void *ptr = NULL;
 	int ret = 0;
 	
+    while(real_malloc == NULL) {}
+
     if(real_malloc) {
 		ptr = real_malloc(size);
 	}
@@ -342,6 +345,7 @@ void* malloc(size_t size)
 	return ptr;
 }
 
+#if 0
 void* calloc(size_t count, size_t size)
 {
 	void *ptr = NULL;
@@ -382,6 +386,7 @@ void *realloc(void *ptr, size_t size)
 
 	return new_ptr;
 }
+#endif
 
 static long fprof_tv_diff_secs(struct timeval *tv1, struct timeval *tv2)
 {
