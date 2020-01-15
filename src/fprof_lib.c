@@ -99,7 +99,7 @@ static void parse_options(void)
     //
     // fprof_opt_max_runs
     //
-    opt  = getenv("fprof_max_runs");
+    opt  = getenv("fprof_opt_max_runs");
 
     if(opt == NULL) {
         opt = "-1";
@@ -139,7 +139,7 @@ static void parse_options(void)
     //
     // fprof_opt_dump_interval
     //
-    opt = getenv("fprof_dump_interval");
+    opt = getenv("fprof_opt_dump_interval");
 
     if(opt == NULL) {
         opt = "1";
@@ -757,7 +757,7 @@ static void *fprof_dump_thread_func(void *arg)
 	(void) gettimeofday(&tv1, NULL);
 	(void) gettimeofday(&tv2, NULL);
 
-    parse_options();
+    //parse_options();
 
 	while(fprof_dump_runflag == 1) {
 
