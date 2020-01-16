@@ -42,7 +42,6 @@ static size_t fprof_size_hash_extra_bytes = 0;
 
 
 static FILE *fprof_dump_fp = NULL;
-static char fprof_dump_file[MAX_PATH_LEN];
 
 static spinlock_t fprof_init_lock = SPIN_UNLOCKED;
 
@@ -79,7 +78,7 @@ static int      fprof_opt_debug = 0;
 static int      fprof_opt_max_runs = 0;
 static size_t   fprof_opt_max_size = -1;
 static int      fprof_opt_dump_interval = 1;
-
+static char     fprof_opt_dump_file[MAX_PATH_LEN];
 
 static void parse_options(void)
 {
@@ -146,12 +145,22 @@ static void parse_options(void)
 
     fprof_opt_dump_interval = atoi(opt4);
 
+    //
+    // fprof_opt_dump_file
+    //
+    char *opt5 = getenv("fprof_opt_dump_file");
+
+    if(opt5 == NULL) {
+        opt5 = "default";
+    }
+
+    snprintf(fprof_opt_dump_file, sizeof(fprof_opt_dump_file), "%s", opt5);
 
     printf("FPROF: fprof_opt_debug=%d\n", fprof_opt_debug);
     printf("FPROF: fprof_opt_max_runs=%d\n", fprof_opt_max_runs);
     printf("FPROF: fprof_opt_max_size=%lu MB\n", fprof_opt_max_size >> 20);
     printf("FPROF: fprof_opt_dump_interval=%d\n", fprof_opt_dump_interval);
-
+    printf("FPROF: fprof_opt_dump_file=%s\n", fprof_opt_dump_file);
 }
 
 static void hash_delete_extra_entry(fprof_size_hash_entry *head, void *addr, size_t *size)
@@ -770,7 +779,7 @@ static void *fprof_dump_thread_func(void *arg)
 	(void) gettimeofday(&tv1, NULL);
 	(void) gettimeofday(&tv2, NULL);
 
-    parse_options();
+    //parse_options();
 
 	while(fprof_dump_runflag == 1) {
 
@@ -802,7 +811,7 @@ static void *fprof_dump_thread_func(void *arg)
         //
 		// check size
         //
-		ret = stat(&fprof_dump_file, &st);
+		ret = stat(&fprof_opt_dump_file, &st);
 
 		fprof_time_id++;
 
@@ -834,7 +843,7 @@ void __attribute__((constructor)) libfprof_init(void)
 	FPROF_SET_REAL_FUNC(real_realloc, "realloc");
 	FPROF_SET_REAL_FUNC(real_free,    "free");
 
-
+    parse_options();
 
 	spin_lock(&fprof_init_lock);
 
@@ -847,22 +856,26 @@ void __attribute__((constructor)) libfprof_init(void)
 
 	//get real funcs
 
-	(void) mkdir(FPROF_RESULT_DIR, 0755);
+    if(strcmp("default", fprof_opt_dump_file) == 0) {
+        (void) mkdir(FPROF_RESULT_DIR, 0755);
 
-	//create file
-	for(i = 1; i <= 1024; i++) {
-		snprintf(fprof_dump_file, sizeof(fprof_dump_file), "%s/trace_%d.txt", FPROF_RESULT_DIR, i);
+        //create file
+        for(i = 1; i <= 1024; i++) {
+            snprintf(fprof_opt_dump_file, sizeof(fprof_opt_dump_file), "%s/trace_%d.txt", FPROF_RESULT_DIR, i);
 
-		ret = stat(fprof_dump_file, &st);
+            ret = stat(fprof_opt_dump_file, &st);
 
-		if(ret < 0)
-			break;
-	}
+            if(ret < 0)
+                break;
+        }
+    }
 
-	fprof_dump_fp = fopen(fprof_dump_file, "w+t");
+    printf("FPROF: dump to file %s\n", fprof_opt_dump_file);
+
+	fprof_dump_fp = fopen(fprof_opt_dump_file, "w+t");
 
 	if(fprof_dump_fp == NULL) {
-		fprintf(stderr, "FPROF: failed to create trace file: %s\n", fprof_dump_file);
+		fprintf(stderr, "FPROF: failed to create trace file: %s\n", fprof_opt_dump_file);
 		spin_unlock(&fprof_init_lock);
 		exit(-1);
 	}
