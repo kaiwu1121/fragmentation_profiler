@@ -53,8 +53,9 @@ static spinlock_t   fprof_objects_size_lock = SPIN_UNLOCKED;
 
 static pthread_t    fprof_dump_thread;
 static int          fprof_dump_runflag = 0;
-
+static int          fprof_dump_header_write_flag = 0;
 static char         fprof_dump_buf[1024];
+static char         fprof_print_buf[1024];
 
 
 static void* (*real_calloc)(size_t, size_t) = NULL;
@@ -740,9 +741,28 @@ nonvoluntary_ctxt_switches:	0
 	rss_ratio = ((double)fprof_objects_size_bytes + 0.01) / ((double)vmrss * 1024.00 + 0.01);
 
 
+    const char *header = "time extra_hash_bytes vmsize vmrss vmpte objects rss_ratio\n";
 
+    if(fprof_dump_header_write_flag == 0) {
+        fprintf(fprof_dump_fp, header);
+    }
 
 	snprintf(	fprof_dump_buf, 
+                sizeof(fprof_dump_buf),
+				"%d %lu %lu %lu %lu %lu %.3f\n", 
+				fprof_time_id,
+                hash_extra_bytes,
+				vmsize,
+				vmrss,
+				vmpte,
+				fprof_objects_size_bytes >> 10,
+				rss_ratio
+                );
+
+    fprintf(fprof_dump_fp, fprof_dump_buf);
+
+
+	snprintf(	fprof_print_buf, 
                 sizeof(fprof_dump_buf),
 				"time=%d,extra_hash_bytes=%lu,vmsize=%lu,vmrss=%lu,vmpte=%lu,objects=%lu,rss_ratio=%.3f\n", 
 				fprof_time_id,
@@ -755,10 +775,9 @@ nonvoluntary_ctxt_switches:	0
                 );
 
 
-    fprintf(fprof_dump_fp, fprof_dump_buf);
 
     if(fprof_opt_debug) {
-        fprintf(stdout, fprof_dump_buf);
+        fprintf(stdout, fprof_print_buf);
     }
 }
 
@@ -861,7 +880,7 @@ void __attribute__((constructor)) libfprof_init(void)
 
         //create file
         for(i = 1; i <= 1024; i++) {
-            snprintf(fprof_opt_dump_file, sizeof(fprof_opt_dump_file), "%s/trace_%d.txt", FPROF_RESULT_DIR, i);
+            snprintf(fprof_opt_dump_file, sizeof(fprof_opt_dump_file), "%s/trace_%d.csv", FPROF_RESULT_DIR, i);
 
             ret = stat(fprof_opt_dump_file, &st);
 
