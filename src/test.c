@@ -5,7 +5,7 @@
 
 
 
-#define TEST_NR	100
+#define TEST_NR	1000
 
 int main(int argc, char **argv)
 {
@@ -20,25 +20,33 @@ int main(int argc, char **argv)
 	srand(time(NULL));
 
 	for(i = 0; i < TEST_NR; i++) {
-		sizes[i] = rand() % 4096;
+		sizes[i] = rand() % 40960;
 		ptrs[i]  = malloc(sizes[i]);
 
 		printf("alloc ptr = %lx size = %ld\n", ptrs[i], sizes[i]);
+
+        if(i != 0 && i%10 == 0) {
+            sleep(1);
+        }
 	}
 
 
-	printf("wait for 60S ...\n");
-
+	printf("wait for 60S to free ...\n");
 	sleep(60);
 
 	for(i = 0; i < TEST_NR; i++) {
-		free(ptrs[i]);
+
+        if(ptrs[i]) {
+		    free(ptrs[i]);
+        }
 
 		printf("free ptr = %lx\n", ptrs[i]);
+
+        if(i != 0 && i%10 == 0) {
+            sleep(1);
+        }
+
 	}
-
-
-
 
 	return 0;
 }

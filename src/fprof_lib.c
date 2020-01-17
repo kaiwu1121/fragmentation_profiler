@@ -21,6 +21,16 @@
 #include "fprof_lib.h"
 
 
+#define FPROF_ERROR(fmt, args...) do {\
+    fprintf(stderr, "FPROF: ");\
+    fprintf(stderr, fmt, ##args); \
+} while(0)
+
+#define FPROF_PRINT(fmt, args...) do {\
+    fprintf(stdout, "FPROF: ");\
+    fprintf(stdout, fmt, ##args); \
+} while(0)
+
 #define FPROF_ADDR_HASH_TABLE_SIZE      7999
 #define FPROF_ADDR_HASH_ENTRY_SIZE      17
 
@@ -157,11 +167,11 @@ static void parse_options(void)
 
     snprintf(fprof_opt_dump_file, sizeof(fprof_opt_dump_file), "%s", opt5);
 
-    printf("FPROF: fprof_opt_debug=%d\n", fprof_opt_debug);
-    printf("FPROF: fprof_opt_max_runs=%d\n", fprof_opt_max_runs);
-    printf("FPROF: fprof_opt_max_size=%lu MB\n", fprof_opt_max_size >> 20);
-    printf("FPROF: fprof_opt_dump_interval=%d\n", fprof_opt_dump_interval);
-    printf("FPROF: fprof_opt_dump_file=%s\n", fprof_opt_dump_file);
+    FPROF_PRINT("fprof_opt_debug=%d\n", fprof_opt_debug);
+    FPROF_PRINT("fprof_opt_max_runs=%d\n", fprof_opt_max_runs);
+    FPROF_PRINT("fprof_opt_max_size=%lu MB\n", fprof_opt_max_size >> 20);
+    FPROF_PRINT("fprof_opt_dump_interval=%d\n", fprof_opt_dump_interval);
+    FPROF_PRINT("fprof_opt_dump_file=%s\n", fprof_opt_dump_file);
 }
 
 static void hash_delete_extra_entry(fprof_size_hash_entry *head, void *addr, size_t *size)
@@ -541,7 +551,7 @@ static void dump_vmstat(void)
 	fp = fopen(procfile, "r");
 
 	if(fp == NULL) {
-		fprintf(stderr, "FPROF: can't open %s", procfile);
+		FPROF_ERROR("can't open %s", procfile);
 		return ;
 	}
 	
@@ -777,7 +787,7 @@ nonvoluntary_ctxt_switches:	0
 
 
     if(fprof_opt_debug) {
-        fprintf(stdout, fprof_print_buf);
+        FPROF_PRINT(fprof_print_buf);
     }
 }
 
@@ -845,7 +855,8 @@ static void *fprof_dump_thread_func(void *arg)
 
 	}
 
-	return NULL;
+	//return NULL;
+    pthread_exit("Exited");
 }
 
 void __attribute__((constructor)) libfprof_init(void)
@@ -873,7 +884,7 @@ void __attribute__((constructor)) libfprof_init(void)
 
     memset(fprof_size_hash, 0, sizeof(fprof_size_hash));
 
-	//get real funcs
+
 
     if(strcmp("default", fprof_opt_dump_file) == 0) {
         (void) mkdir(FPROF_RESULT_DIR, 0755);
@@ -887,14 +898,14 @@ void __attribute__((constructor)) libfprof_init(void)
             if(ret < 0)
                 break;
         }
-    }
+    } 
 
     printf("FPROF: dump to file %s\n", fprof_opt_dump_file);
 
 	fprof_dump_fp = fopen(fprof_opt_dump_file, "w+t");
 
 	if(fprof_dump_fp == NULL) {
-		fprintf(stderr, "FPROF: failed to create trace file: %s\n", fprof_opt_dump_file);
+		FPROF_ERROR("failed to create trace file: %s\n", fprof_opt_dump_file);
 		spin_unlock(&fprof_init_lock);
 		exit(-1);
 	}
@@ -910,7 +921,7 @@ void __attribute__((constructor)) libfprof_init(void)
 	ret = pthread_create(&fprof_dump_thread, NULL, fprof_dump_thread_func, NULL);
 
 	if(ret < 0) {
-		fprintf(stderr, "FPROF: failed pthread_create\n");
+		FPROF_ERROR("failed pthread_create\n");
 		exit(-1);
 	}
 
@@ -934,6 +945,10 @@ void __attribute__((destructor))  libfprof_exit(void)
 		fclose(fprof_dump_fp);
         fprof_dump_fp = NULL;
 	}
+
+    char *res = NULL;
+
+    pthread_join(fprof_dump_thread, &res);
 }
 
 
